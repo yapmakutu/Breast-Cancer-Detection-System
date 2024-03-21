@@ -73,36 +73,42 @@ class AttentionGate(Layer):
 
 class DeepLearning:
     def __init__(self, unet_model_path, cnn_model_path):
-        # Özelleştirilmiş katmanları kullanarak modeli yükle
         self.segmentation_model = load_model(unet_model_path,
-                                             custom_objects={
-                                                 'EncoderBlock': EncoderBlock,
-                                                 'DecoderBlock': DecoderBlock,
-                                                 'AttentionGate': AttentionGate
-                                             })
+                                             custom_objects={'EncoderBlock': EncoderBlock, 'DecoderBlock': DecoderBlock,
+                                                             'AttentionGate': AttentionGate})
         self.classification_model = load_model(cnn_model_path)
 
     def segment_and_classify(self, image_path):
-        # Görüntüyü yükle ve U-Net modeli için hazırla
         test_image = cv2.imread(image_path)
         resized_image = cv2.resize(test_image, (256, 256))
         resized_image = np.expand_dims(resized_image, axis=0)
 
-        # U-Net modeli ile maske tahmini yap
         predicted_mask = self.segmentation_model.predict(resized_image)
         predicted_mask = cv2.resize(predicted_mask[0], (test_image.shape[1], test_image.shape[0]))
-
-        # Eşik değerini belirleyerek ikili maske oluştur
         _, binary_mask = cv2.threshold(predicted_mask, 0.5, 1, cv2.THRESH_BINARY)
         binary_mask = (binary_mask * 255).astype(np.uint8)
 
-        # CNN modeli için maskeyi hazırla
-        predicted_mask_resized = cv2.resize(binary_mask, (256, 256))
-        predicted_mask_final = np.expand_dims(predicted_mask_resized, axis=0)
-        predicted_mask_final = np.expand_dims(predicted_mask_final, axis=-1)
+        segmented_pixels = np.sum(binary_mask > 0)
+        total_pixels = binary_mask.size
+        segmented_ratio = (segmented_pixels / total_pixels) * 100
 
-        # CNN modeli ile tahmin yap
-        prediction = self.classification_model.predict(predicted_mask_final)
+        # Eğer segmentlenmiş piksel oranı %2'den az ise "Normal (No cancer)" sonucunu döndür
+        if segmented_ratio < 1:
+            diagnosis = self.update_diagnosis("Normal")
+        else:
+            predicted_mask_resized = cv2.resize(binary_mask, (256, 256))
+            predicted_mask_final = np.expand_dims(predicted_mask_resized, axis=0)
+            predicted_mask_final = np.expand_dims(predicted_mask_final, axis=-1)
+            prediction = self.classification_model.predict(predicted_mask_final)
+            diagnosis = self.update_diagnosis(prediction)
 
-        # İkili maske ve tahmin sonucunu döndür
-        return predicted_mask, prediction
+        return binary_mask, diagnosis
+
+    def update_diagnosis(self, prediction):
+        if prediction == "Normal":
+            diagnosis_text = "Normal (No cancer)"
+        elif isinstance(prediction, np.ndarray) and prediction.shape[-1] == 1:
+            diagnosis_text = "Malignant" if prediction[0][0] > 0.6 else "Benign"
+        else:
+            diagnosis_text = "Not Cancer"
+        return diagnosis_text
