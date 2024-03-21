@@ -63,6 +63,7 @@ class MainApplication:
         self.root.mainloop()
 
 
+
 config_loader = load_config("config.json")
 
 if __name__ == "__main__":

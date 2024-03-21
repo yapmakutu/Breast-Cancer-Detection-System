@@ -69,10 +69,13 @@ class ResultWindow(tk.Toplevel):
         self.master.quit()
 
     def update_diagnosis(self, prediction):
-        if prediction == "Normal":
-            diagnosis_text = "Normal (No cancer)"
-        elif isinstance(prediction, np.ndarray) and prediction.shape[-1] == 1:
-            diagnosis_text = "Malignant" if prediction[0][0] > 0.6 else "Benign"
+        if isinstance(prediction, np.ndarray):
+            # Deep Learning modelinden gelen çıktıyı işle
+            diagnosis_text = prediction
+        elif isinstance(prediction, str):
+            # Machine Learning modelinden gelen çıktı (doğrudan etiket)
+            diagnosis_text = prediction
         else:
             diagnosis_text = "Not Cancer"
-        return diagnosis_text
+        self.label_diagnosis.config(text=diagnosis_text)
+
