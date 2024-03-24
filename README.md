@@ -8,7 +8,7 @@ This CAD system depends on specific deep learning models. To make the process of
 
 ### Prerequisites
 
-- Python 3.8 or higher is required to run this project.
+- Python 3.8.2 (The project is written using Python 3.8.2 and works correctly in this version. Other versions have not been tested.)
 
 ## Installation
 
