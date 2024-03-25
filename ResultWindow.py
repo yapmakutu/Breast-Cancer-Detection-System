@@ -38,6 +38,7 @@ class ResultWindow(QDialog):
         self.frame_results = QFrame(self)
         self.frame_results.setStyleSheet("background-color: #323232;")
         self.layout_results = QHBoxLayout()
+        self.layout_results.setSpacing(10)  # Adjust the spacing between images
 
         # Load and display images
         self.load_and_display_image(self.original_image_path, Qt.AlignLeft)
@@ -46,27 +47,38 @@ class ResultWindow(QDialog):
         self.frame_results.setLayout(self.layout_results)
 
         # Diagnosis Label
-        self.label_diagnosis = QLabel("...", self.frame_results)
-        self.label_diagnosis.setStyleSheet("color: white; font: 16pt 'Helvetica';")
+        self.label_diagnosis = QLabel("...", self)  # Moved this initialization up here to use in diagnosis_layout
+        self.label_diagnosis.setStyleSheet("color: white; font: 16pt 'Helvetica'; background-color: #323232;")
         self.label_diagnosis.setAlignment(Qt.AlignCenter)
+        self.label_diagnosis.setFixedSize(511, 50)  # You might want to adjust the size or remove fixed size
 
         # Navigation Buttons
         self.button_upload_page = QPushButton("↩ Upload Page", self)
         self.button_upload_page.setStyleSheet("background-color: #FF69B4; color: black; font: 12pt 'Helvetica';")
+        self.button_upload_page.setFixedSize(150, 40)  # Adjust size as needed
         self.button_upload_page.clicked.connect(self.back_to_upload)
 
         self.button_exit = QPushButton("Exit ✖", self)
         self.button_exit.setStyleSheet("background-color: #FF69B4; color: black; font: 12pt 'Helvetica';")
+        self.button_exit.setFixedSize(150, 40)  # Adjust size as needed
         self.button_exit.clicked.connect(self.exit_app)
+
+        # Diagnosis Layout
+        diagnosis_layout = QHBoxLayout()
+        diagnosis_layout.addStretch(1)
+        diagnosis_layout.addWidget(self.label_diagnosis)
+        diagnosis_layout.addStretch(1)
 
         # Main Layout
         main_layout = QVBoxLayout()
         main_layout.addWidget(self.label_title)
-        main_layout.addWidget(self.frame_results)
-        main_layout.addWidget(self.label_diagnosis)
+        main_layout.addWidget(self.frame_results, 1)
+        main_layout.addLayout(diagnosis_layout)
 
+        # Button Layout
         button_layout = QHBoxLayout()
         button_layout.addWidget(self.button_upload_page)
+        button_layout.addStretch(1)
         button_layout.addWidget(self.button_exit)
         main_layout.addLayout(button_layout)
 
@@ -75,14 +87,14 @@ class ResultWindow(QDialog):
     def load_and_display_image(self, image_path, alignment):
         if image_path:
             img = Image.open(image_path)
-            # Use Image.Resampling.LANCZOS instead of Image.ANTIALIAS
-            img = img.resize((400, 400), Image.Resampling.LANCZOS)
+            img = img.resize((511, 472), Image.Resampling.LANCZOS)  # Resize to 511x472
             img.save(image_path)  # Optionally save the resized image back to disk
 
             pixmap = QPixmap(image_path)
             label_image = QLabel(self.frame_results)
             label_image.setPixmap(pixmap)
             label_image.setAlignment(alignment)
+            label_image.setFixedSize(511, 472)  # Set fixed size to avoid layout resizing
             self.layout_results.addWidget(label_image)
 
     def back_to_upload(self):
@@ -95,9 +107,11 @@ class ResultWindow(QDialog):
     def update_diagnosis(self, prediction):
         diagnosis_text = "Not Cancer"  # Default text
         if isinstance(prediction, np.ndarray):
-            # Process prediction from Deep Learning model
             diagnosis_text = str(prediction)  # Convert np.ndarray to string if necessary
         elif isinstance(prediction, str):
-            # Direct label from Machine Learning model
             diagnosis_text = prediction
+
+        self.label_diagnosis.setText(diagnosis_text)
+        # Update diagnosis label style
+        self.label_diagnosis.setStyleSheet("background-color: #323232; color: white; font: 16pt 'Helvetica';")
         self.label_diagnosis.setText(diagnosis_text)

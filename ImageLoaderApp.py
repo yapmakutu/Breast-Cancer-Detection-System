@@ -101,7 +101,7 @@ class ImageLoaderApp(QDialog):
 
     def display_image(self, file_path):
         img = Image.open(file_path)
-        img = img.resize((450, 420), Image.LANCZOS)
+        img = img.resize((512, 472), Image.LANCZOS)
         img.save(file_path)
 
         pixmap = QPixmap(file_path)
