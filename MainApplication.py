@@ -1,12 +1,13 @@
+import sys
 import json
 import os
 import tempfile
-import tkinter as tk
+from PyQt5.QtWidgets import QApplication, QMainWindow
 import cv2
 import numpy as np
 from ImageLoaderApp import ImageLoaderApp
-from DeepLearning import DeepLearning
 from ResultWindow import ResultWindow
+from DeepLearning import DeepLearning
 from MachineLearning import MachineLearning
 
 
@@ -15,58 +16,50 @@ def load_config(config_file):
         return json.load(file)
 
 
-class MainApplication:
-    def __init__(self, root, config):
+class MainApplication(QMainWindow):
+    def __init__(self, config):
+        super(MainApplication, self).__init__()
+        self.setWindowTitle("Breast Cancer Detection System")
+
+        # Initialize models
+        self.deep_learning = DeepLearning(config["unet_model_path"], config["trained_model_path"])
+        self.machine_learning = MachineLearning(config["scaler_path"], config["knn_model_path"])
+
         self.image_loader_app = None
         self.result_window = None
-        self.root = root
-        self.root.withdraw()
-        unet_model_path = config["unet_model_path"]
-        trained_model_path = config["trained_model_path"]
-        scaler_path = config["scaler_path"]
-        knn_model_path = config["knn_model_path"]
-        self.deep_learning = DeepLearning(unet_model_path, trained_model_path)
-        self.machine_learning = MachineLearning(scaler_path, knn_model_path)
+
         self.open_image_loader()
 
     def open_image_loader(self):
-        if self.result_window is not None:
-            self.result_window.destroy()
-            self.result_window = None
-        self.image_loader_app = ImageLoaderApp(master=self.root, callback=self.on_image_loaded)
-        self.image_loader_app.grab_set()
+        self.image_loader_app = ImageLoaderApp(callback=self.on_image_loaded)
+        self.image_loader_app.show()
 
     def on_image_loaded(self, image_path, option):
         if option == 1:
             predicted_mask, prediction = self.deep_learning.segment_and_classify(image_path)
-            self.image_loader_app.destroy()
             self.show_result_window(image_path, predicted_mask, prediction)
         elif option == 2:
             segmented_image, prediction = self.machine_learning.segment_and_classify(image_path)
-            self.image_loader_app.destroy()
             self.show_result_window(image_path, segmented_image, prediction)
 
+        if self.image_loader_app is not None:
+            self.image_loader_app.close()
+
     def show_result_window(self, original_image_path, result_image, prediction):
-        if self.result_window is not None:
-            self.result_window.destroy()
         if isinstance(result_image, np.ndarray):
             result_image = (result_image * 255).astype(np.uint8)
             result_image_path = os.path.join(tempfile.gettempdir(), "predicted_mask.png")
             cv2.imwrite(result_image_path, result_image)
         else:
             result_image_path = result_image
-        self.result_window = ResultWindow(self.root, self, original_image_path=original_image_path,
+
+        self.result_window = ResultWindow(self, original_image_path=original_image_path,
                                           result_image_path=result_image_path, prediction=prediction)
-        self.result_window.grab_set()
+        self.result_window.show()
 
-    def run(self):
-        self.root.mainloop()
-
-
-config_loader = load_config("config.json")
 
 if __name__ == "__main__":
-    main_root = tk.Tk()
-    main_root.title("Breast Cancer Detection System")
-    app = MainApplication(main_root, config_loader)
-    app.run()
+    app = QApplication(sys.argv)
+    config_loader = load_config("config.json")
+    main_app = MainApplication(config_loader)
+    sys.exit(app.exec_())

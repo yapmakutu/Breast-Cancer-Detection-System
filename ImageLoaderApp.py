@@ -1,7 +1,9 @@
-import tkinter as tk
-from tkinter import filedialog, Label, Button, Frame
+from PyQt5.QtWidgets import (QDialog, QLabel, QPushButton, QFrame,
+                             QVBoxLayout, QHBoxLayout, QFileDialog)
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtCore import Qt
 import os
-from PIL import Image, ImageTk
+from PIL import Image
 
 
 def is_image_file(file_path):
@@ -9,103 +11,115 @@ def is_image_file(file_path):
     return os.path.splitext(file_path)[1].lower() in valid_extensions
 
 
-class ImageLoaderApp(tk.Toplevel):
-    def __init__(self, master, callback=None):
-        super().__init__(master)
-        self.overrideredirect(False)  # Pencere başlık çubuğunu ve varsayılan düğmeleri etkinleştirir
-        self.button_option_2 = None
-        self.button_option_1 = None
-        self.label_title = None
+class ImageLoaderApp(QDialog):
+    def __init__(self, callback=None):
+        super().__init__()
+        self.setWindowFlags(
+            self.windowFlags() | Qt.WindowMinimizeButtonHint | Qt.WindowMaximizeButtonHint | Qt.WindowCloseButtonHint)
         self.ok_button = None
+        self.button_option_1 = None
+        self.button_option_2 = None
         self.button_add = None
-        self.drop_frame = None
         self.drop_label = None
+        self.drop_frame = None
+        self.label_title = None
+        self.setWindowTitle("Add Image")
+        self.setGeometry(100, 100, 1390, 768)  # Adjust to center on the screen as needed
         self.callback = callback
-        self.image_label = None
         self.file_path = None
         self.option = None
-        self.title = None
-        self.configure(bg='#ADD8E6')
+        self.initUI()
+        self.showMaximized()
 
-        # Pencere boyutunu ve ekranın ortasına yerleştirmek için kodlar
-        window_width = 1390
-        window_height = 768
-        screen_width = self.winfo_screenwidth()  # Ekranın genişliğini al
-        screen_height = self.winfo_screenheight()  # Ekranın yüksekliğini al
+    def initUI(self):
+        self.setStyleSheet("background-color: #ADD8E6;")
 
-        # Pencerenin ekranın ortasında olması için x ve y offset'lerini hesapla
-        x_offset = (screen_width - window_width) // 2
-        y_offset = (screen_height - window_height) // 2
-
-        # Pencerenin boyutunu ve pozisyonunu ayarla
-        self.geometry(f"{window_width}x{window_height}+{x_offset}+{y_offset}")
-
-        self.create_widgets()
-
-    def create_widgets(self):
-        self.label_title = Label(self, text="Add Image", fg="black", bg="#ADD8E6", font=("Helvetica", 24))
-        self.label_title.pack(pady=(50, 20))
+        # Title Label
+        self.label_title = QLabel("Add Image", self)
+        self.label_title.setStyleSheet("color: black; font: 24pt 'Helvetica';")
 
         # Drop Frame
-        self.drop_frame = Frame(self, bg='#323232', bd=2)
-        self.drop_frame.place(relx=0.5, rely=0.5, anchor='center', width=600, height=450)
+        self.drop_frame = QFrame(self)
+        self.drop_frame.setStyleSheet("background-color: #323232;")
+        self.drop_frame.setFixedSize(600, 450)
 
-        # "Drop Image Here" Label inside the drop frame
-        self.drop_label = Label(self.drop_frame, text="Drop Image Here", fg="black", bg="#ADD8E6",
-                                font=("Helvetica", 16))
-        self.drop_label.place(relx=0.5, rely=0.5, anchor='center')
+        # "Drop Image Here" Label
+        self.drop_label = QLabel("Drop Image Here", self.drop_frame)
+        self.drop_label.setStyleSheet("color: black; font: 16pt 'Helvetica';")
+        self.drop_label.setAlignment(Qt.AlignCenter)
 
-        # "Add" Button inside the drop frame at the bottom left
-        self.button_add = Button(self.drop_frame, text="Add", command=self.open_file_dialog, bg="#FF69B4", fg="black",
-                                 font=("Helvetica", 12))
-        self.button_add.place(relx=0.01, rely=0.95, anchor='sw')
+        # "Add" Button
+        self.button_add = QPushButton("Add", self.drop_frame)
+        self.button_add.setStyleSheet("background-color: #FF69B4; color: black; font: 12pt 'Helvetica';")
+        self.button_add.clicked.connect(self.open_file_dialog)
 
         # Option Buttons
-        button_width = 20
-        button_height = 2
+        self.button_option_1 = QPushButton("Deep Learning", self)
+        self.button_option_1.setStyleSheet("background-color: #FF69B4; color: black; font: 12pt 'Helvetica';")
+        self.button_option_1.setFixedSize(200, 40)
+        self.button_option_1.clicked.connect(lambda: self.set_option(1))
 
-        self.button_option_1 = Button(self, text="Deep Learning", command=lambda: self.set_option(1), bg="#FF69B4", fg="black", font=("Helvetica", 12), width=button_width, height=button_height, anchor='w')
-        self.button_option_1.place(relx=0.9, rely=0.1, anchor='ne')
+        self.button_option_2 = QPushButton("Machine Learning", self)
+        self.button_option_2.setStyleSheet("background-color: #FF69B4; color: black; font: 12pt 'Helvetica';")
+        self.button_option_2.setFixedSize(200, 40)
+        self.button_option_2.clicked.connect(lambda: self.set_option(2))
 
-        self.button_option_2 = Button(self, text="Machine Learning", command=lambda: self.set_option(2), bg="#FF69B4", fg="black", font=("Helvetica", 12), width=button_width, height=button_height, anchor='w')
-        self.button_option_2.place(relx=0.9, rely=0.15, anchor='ne')
+        # "OK" Button
+        self.ok_button = QPushButton("→", self)
+        self.ok_button.setStyleSheet("background-color: #FF69B4; color: black; font: 12pt 'Helvetica';")
+        self.ok_button.setFixedSize(50, 40)
+        self.ok_button.clicked.connect(self.on_ok_pressed)
 
-        # "OK" Button (or arrow)
-        self.ok_button = Button(self, text="→", command=self.on_ok_pressed, bg="#FF69B4", fg="black",
-                                font=("Helvetica", 12))
-        self.ok_button.pack(side="right", padx=(20, 50), pady=20, anchor='se')
+        self.layoutWidgets()
+
+    def layoutWidgets(self):
+        # Main layout
+        main_layout = QVBoxLayout()
+        main_layout.addWidget(self.label_title, alignment=Qt.AlignCenter)
+        main_layout.addWidget(self.drop_frame, alignment=Qt.AlignCenter)
+
+        # Drop frame layout
+        drop_frame_layout = QVBoxLayout(self.drop_frame)
+        drop_frame_layout.addWidget(self.drop_label, alignment=Qt.AlignCenter)
+        drop_frame_layout.addWidget(self.button_add, alignment=Qt.AlignBottom | Qt.AlignLeft)
+
+        # Option buttons layout
+        options_layout = QHBoxLayout()
+        options_layout.addWidget(self.button_option_1)
+        options_layout.addWidget(self.button_option_2)
+
+        main_layout.addLayout(options_layout)
+        main_layout.addWidget(self.ok_button, alignment=Qt.AlignRight)
+
+        self.setLayout(main_layout)
 
     def open_file_dialog(self):
-        file_types = [('Image files', '*.jpg *.jpeg *.png')]
-        self.file_path = filedialog.askopenfilename(filetypes=file_types)
-        if self.file_path and is_image_file(self.file_path):
-            self.display_image(self.file_path)
+        file_path, _ = QFileDialog.getOpenFileName(self, "Select Image", "", "Image files (*.jpg *.jpeg *.png)")
+        if file_path and is_image_file(file_path):
+            self.file_path = file_path
+            self.display_image(file_path)
 
     def display_image(self, file_path):
         img = Image.open(file_path)
-        img = img.resize((450, 420), Image.LANCZOS)  # Adjust size as needed
-        img_tk = ImageTk.PhotoImage(img)
+        img = img.resize((450, 420), Image.LANCZOS)
+        img.save(file_path)
 
-        # If an image label doesn't exist, create one to display the image
-        if self.image_label is None:
-            self.image_label = Label(self.drop_frame, image=img_tk, bg="#323232")
-            self.image_label.image = img_tk
-            self.image_label.place(relx=0.5, rely=0.5, anchor='center')
-        else:
-            self.image_label.config(image=img_tk)
-            self.image_label.image = img_tk
+        pixmap = QPixmap(file_path)
+        self.drop_label.setPixmap(pixmap)
+        self.drop_label.setScaledContents(True)
 
     def on_ok_pressed(self):
         if self.file_path and self.callback and self.option is not None:
             self.callback(self.file_path, self.option)
+        self.close()
 
     def set_option(self, option):
-        # Seçilen butonun durumunu güncelle
+        # Update the state of the selected button
         if option == 1:
-            self.button_option_1.config(bg="#4E342E")  # Seçili butonun rengini değiştir
-            self.button_option_2.config(bg="#FF69B4")  # Diğer butonun rengini varsayılana çevir
+            self.button_option_1.setStyleSheet("background-color: #4E342E; color: black; font: 12pt 'Helvetica';")
+            self.button_option_2.setStyleSheet("background-color: #FF69B4; color: black; font: 12pt 'Helvetica';")
         elif option == 2:
-            self.button_option_2.config(bg="#4E342E")  # Seçili butonun rengini değiştir
-            self.button_option_1.config(bg="#FF69B4")  # Diğer butonun rengini varsayılana çevir
+            self.button_option_2.setStyleSheet("background-color: #4E342E; color: black; font: 12pt 'Helvetica';")
+            self.button_option_1.setStyleSheet("background-color: #FF69B4; color: black; font: 12pt 'Helvetica';")
 
         self.option = option

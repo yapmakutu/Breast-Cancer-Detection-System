@@ -1,81 +1,103 @@
-import tkinter as tk
-from tkinter import Label, Button
+from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame)
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtCore import Qt
 import numpy as np
-from PIL import Image, ImageTk
+from PIL import Image
 
 
-class ResultWindow(tk.Toplevel):
-    def __init__(self, master, main_app, original_image_path=None, result_image_path=None, prediction=None):
-        super().__init__(master)
-        self.diagnosis_label = None
+class ResultWindow(QDialog):
+    def __init__(self, main_app, original_image_path=None, result_image_path=None, prediction=None):
+        super().__init__()
+        self.setWindowFlags(
+            self.windowFlags() | Qt.WindowMinimizeButtonHint | Qt.WindowMaximizeButtonHint | Qt.WindowCloseButtonHint)
         self.button_exit = None
         self.button_upload_page = None
         self.label_diagnosis = None
+        self.layout_results = None
         self.frame_results = None
         self.label_title = None
         self.main_app = main_app
-        self.title = None
-        self.configure(bg='#ADD8E6')
         self.original_image_path = original_image_path
         self.result_image_path = result_image_path
         self.prediction = prediction
+        self.initUI()
+        self.update_diagnosis(prediction)
+        self.showMaximized()
 
-        # Pencere boyutunu ve ekranın ortasına yerleştirmek için kodlar
-        window_width = 1390
-        window_height = 768
-        screen_width = self.winfo_screenwidth()  # Ekranın genişliğini al
-        screen_height = self.winfo_screenheight()  # Ekranın yüksekliğini al
+    def initUI(self):
+        self.setWindowTitle("Result")
+        self.setGeometry(100, 100, 1390, 768)  # Adjust these values as per your requirement
+        self.setStyleSheet("background-color: #ADD8E6;")
 
-        # Pencerenin ekranın ortasında olması için x ve y offset'lerini hesapla
-        x_offset = (screen_width - window_width) // 2
-        y_offset = (screen_height - window_height) // 2
+        # Title Label
+        self.label_title = QLabel("Result", self)
+        self.label_title.setStyleSheet("color: black; font: 24pt 'Helvetica';")
+        self.label_title.setAlignment(Qt.AlignCenter)
 
-        # Pencerenin boyutunu ve pozisyonunu ayarla
-        self.geometry(f"{window_width}x{window_height}+{x_offset}+{y_offset}")
+        # Results Frame
+        self.frame_results = QFrame(self)
+        self.frame_results.setStyleSheet("background-color: #323232;")
+        self.layout_results = QHBoxLayout()
 
-        self.create_widgets()
-        self.update_diagnosis(self.prediction)
+        # Load and display images
+        self.load_and_display_image(self.original_image_path, Qt.AlignLeft)
+        self.load_and_display_image(self.result_image_path, Qt.AlignRight)
 
-    def create_widgets(self):
-        self.label_title = Label(self, text="Result", fg="black", bg="#ADD8E6", font=("Helvetica", 24))
-        self.label_title.pack(pady=(50, 20))
-        self.frame_results = tk.Frame(self, bg="#323232")
-        self.frame_results.pack(padx=20, pady=20, fill="both", expand=True)
-        self.load_and_display_image(self.original_image_path, "left")
-        self.load_and_display_image(self.result_image_path, "right")
-        self.label_diagnosis = Label(self, text="...", fg="white", bg="#323232", font=("Helvetica", 16))
-        self.label_diagnosis.pack(pady=(20, 10), expand=True, fill='x')
-        self.button_upload_page = Button(self, text="↩ Upload Page", command=self.back_to_upload, bg="#FF69B4",
-                                         fg="black", font=("Helvetica", 12))
-        self.button_upload_page.pack(side="left", padx=(50, 20), pady=20)
-        self.button_exit = Button(self, text="Exit ✖", command=self.exit_app, bg="#FF69B4", fg="black",
-                                  font=("Helvetica", 12))
-        self.button_exit.pack(side="right", padx=(20, 50), pady=20)
+        self.frame_results.setLayout(self.layout_results)
 
-    def load_and_display_image(self, image_path, side):
+        # Diagnosis Label
+        self.label_diagnosis = QLabel("...", self.frame_results)
+        self.label_diagnosis.setStyleSheet("color: white; font: 16pt 'Helvetica';")
+        self.label_diagnosis.setAlignment(Qt.AlignCenter)
+
+        # Navigation Buttons
+        self.button_upload_page = QPushButton("↩ Upload Page", self)
+        self.button_upload_page.setStyleSheet("background-color: #FF69B4; color: black; font: 12pt 'Helvetica';")
+        self.button_upload_page.clicked.connect(self.back_to_upload)
+
+        self.button_exit = QPushButton("Exit ✖", self)
+        self.button_exit.setStyleSheet("background-color: #FF69B4; color: black; font: 12pt 'Helvetica';")
+        self.button_exit.clicked.connect(self.exit_app)
+
+        # Main Layout
+        main_layout = QVBoxLayout()
+        main_layout.addWidget(self.label_title)
+        main_layout.addWidget(self.frame_results)
+        main_layout.addWidget(self.label_diagnosis)
+
+        button_layout = QHBoxLayout()
+        button_layout.addWidget(self.button_upload_page)
+        button_layout.addWidget(self.button_exit)
+        main_layout.addLayout(button_layout)
+
+        self.setLayout(main_layout)
+
+    def load_and_display_image(self, image_path, alignment):
         if image_path:
-            image = Image.open(image_path)
-            image = image.resize((400, 400), Image.LANCZOS)
-            tk_image = ImageTk.PhotoImage(image)
-            label_image = Label(self.frame_results, image=tk_image, bg="#ADD8E6")
-            label_image.image = tk_image
-            label_image.pack(side=side, padx=10, expand=True)
+            img = Image.open(image_path)
+            # Use Image.Resampling.LANCZOS instead of Image.ANTIALIAS
+            img = img.resize((400, 400), Image.Resampling.LANCZOS)
+            img.save(image_path)  # Optionally save the resized image back to disk
+
+            pixmap = QPixmap(image_path)
+            label_image = QLabel(self.frame_results)
+            label_image.setPixmap(pixmap)
+            label_image.setAlignment(alignment)
+            self.layout_results.addWidget(label_image)
 
     def back_to_upload(self):
-        self.destroy()
+        self.close()
         self.main_app.open_image_loader()
 
     def exit_app(self):
-        self.master.quit()
+        self.close()
 
     def update_diagnosis(self, prediction):
+        diagnosis_text = "Not Cancer"  # Default text
         if isinstance(prediction, np.ndarray):
-            # Deep Learning modelinden gelen çıktıyı işle
-            diagnosis_text = prediction
+            # Process prediction from Deep Learning model
+            diagnosis_text = str(prediction)  # Convert np.ndarray to string if necessary
         elif isinstance(prediction, str):
-            # Machine Learning modelinden gelen çıktı (doğrudan etiket)
+            # Direct label from Machine Learning model
             diagnosis_text = prediction
-        else:
-            diagnosis_text = "Not Cancer"
-        self.label_diagnosis.config(text=diagnosis_text)
-
+        self.label_diagnosis.setText(diagnosis_text)
