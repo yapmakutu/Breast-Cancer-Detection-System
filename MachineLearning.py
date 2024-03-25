@@ -27,18 +27,25 @@ class MachineLearning:
         if ultrasound_image is None:
             return None, "Görüntü yüklenemedi"
 
+        # K-Means ile ön segmentasyon
+        k_means_segmented = self.k_means_segmentation(ultrasound_image, K=2)
+
         # Gürültü filtreleme ve siyah-beyaz dönüşüm
-        image = cv2.cvtColor(ultrasound_image, cv2.COLOR_BGR2GRAY)
-        salt_img_filtered = cv2.medianBlur(image, ksize=3)
+        gray_image = cv2.cvtColor(k_means_segmented, cv2.COLOR_BGR2GRAY)
+        salt_img_filtered = cv2.medianBlur(gray_image, ksize=3)
         gaussian_img_filtered = cv2.GaussianBlur(salt_img_filtered, (3, 3), 0)
         img_filtered = cv2.bilateralFilter(gaussian_img_filtered, d=9, sigmaColor=75, sigmaSpace=75)
         _, thresholded_img = cv2.threshold(img_filtered, 127, 255, cv2.THRESH_BINARY)
-
+        # Filtrelenmis image arrayin icine aktaririliyor
+        # yeni
+        img = np.array(thresholded_img, dtype=np.float64)
         # LSF başlatma ve Chan-Vese segmentasyonu
-        IniLSF = np.ones((thresholded_img.shape[0], thresholded_img.shape[1]), thresholded_img.dtype)
+        #IniLSF = np.ones((thresholded_img.shape[0], thresholded_img.shape[1]), thresholded_img.dtype)
+        IniLSF = np.ones((img.shape[0], img.shape[1]), img.dtype)
         IniLSF[30:80, 30:80] = -1
         IniLSF = -IniLSF
-        LSF = self.chan_vese_segmentation(IniLSF, thresholded_img)
+        # img gonderildi
+        LSF = self.chan_vese_segmentation(IniLSF, img)
 
         # Maskelenmiş görüntü oluşturma ve LBP özellik çıkarımı
         mask = LSF > 0
@@ -57,6 +64,23 @@ class MachineLearning:
             LSF = self.CV(LSF, img, mu, nu, epison, step)
         return LSF
 
+    def k_means_segmentation(self, image, K=2):
+        # Görüntüyü K-Means için hazırla
+        Z = image.reshape((-1, 3))
+        Z = np.float32(Z)
+
+        # Kriter: belirli sayıda iterasyon yapmak ve/veya belirli bir eşik değerine ulaşmak
+        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.2)
+
+        # K-Means uygula
+        _, label, center = cv2.kmeans(Z, K, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
+
+        # Sonuçları orijinal görüntü boyutunda geri dönüştür
+        center = np.uint8(center)
+        res = center[label.flatten()]
+        segmented_image = res.reshape((image.shape))
+
+        return segmented_image
     @staticmethod
     def CV(LSF, img, mu, nu, epison, step):
         # Aktivasyon fonksiyonu (Heaviside fonksiyonu)
@@ -88,3 +112,5 @@ class MachineLearning:
         # LSF'nin güncellenmesi
         LSF = LSF + step * (Length + Penalty + CVterm)
         return LSF
+
+

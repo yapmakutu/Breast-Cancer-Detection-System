@@ -3,6 +3,7 @@ import os
 import tempfile
 import tkinter as tk
 import cv2
+from tkinter import messagebox
 import numpy as np
 from ImageLoaderApp import ImageLoaderApp
 from DeepLearning import DeepLearning
@@ -15,8 +16,9 @@ def load_config(config_file):
         return json.load(file)
 
 
-class MainApplication:
-    def __init__(self, root, config):
+class MainApplication(tk.Toplevel):  # tk.Tk yerine tk.Toplevel kullanıldı
+    def __init__(self, root, config,*args, **kwargs):
+        super().__init__(root)  # Toplevel sınıfının __init__ metodunu çağırmak için super kullanıldı
         self.image_loader_app = None
         self.result_window = None
         self.root = root
@@ -33,7 +35,7 @@ class MainApplication:
         if self.result_window is not None:
             self.result_window.destroy()
             self.result_window = None
-        self.image_loader_app = ImageLoaderApp(master=self.root, callback=self.on_image_loaded)
+        self.image_loader_app = ImageLoaderApp(master=self, callback=self.on_image_loaded)  # root yerine self kullanıldı
         self.image_loader_app.grab_set()
 
     def on_image_loaded(self, image_path, option):
@@ -55,12 +57,12 @@ class MainApplication:
             cv2.imwrite(result_image_path, result_image)
         else:
             result_image_path = result_image
-        self.result_window = ResultWindow(self.root, self, original_image_path=original_image_path,
-                                          result_image_path=result_image_path, prediction=prediction)
+        self.result_window = ResultWindow(self, self, original_image_path=original_image_path,
+                                          result_image_path=result_image_path, prediction=prediction)  # root yerine self kullanıldı
         self.result_window.grab_set()
 
     def run(self):
-        self.root.mainloop()
+        self.mainloop()
 
 
 config_loader = load_config("config.json")
