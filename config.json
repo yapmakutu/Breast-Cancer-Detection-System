@@ -1,6 +1,6 @@
 {
-    "unet_model_path": "C:\\Users\\AhmetSahinCAKIR\\Desktop\\Ahmet\\Bitirme\\Modeller\\final_model.h5",
-    "trained_model_path": "C:\\Users\\AhmetSahinCAKIR\\Desktop\\Ahmet\\Bitirme\\Modeller\\trained_model_size256.h5",
-    "scaler_path": "C:\\Users\\AhmetSahinCAKIR\\Desktop\\Ahmet\\Bitirme\\Modeller\\scaler.joblib",
-    "knn_model_path": "C:\\Users\\AhmetSahinCAKIR\\Desktop\\Ahmet\\Bitirme\\Modeller\\knn_model.joblib"
+    "unet_model_path": "models\\final_model.h5",
+    "trained_model_path": "models\\trained_model_size256.h5",
+    "scaler_path": "models\\scaler.joblib",
+    "knn_model_path": "models\\knn_model.joblib"
 }
