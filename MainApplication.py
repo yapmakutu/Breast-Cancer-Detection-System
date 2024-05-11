@@ -10,7 +10,6 @@ from ResultWindow import ResultWindow
 from DeepLearning import DeepLearning
 from MachineLearning import MachineLearning
 
-#projeyi bozmayalım lütfennnn
 
 def load_config(config_file):
     with open(config_file, "r") as file:
