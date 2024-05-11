@@ -41,11 +41,11 @@ class ImageLoaderApp(QDialog):
         # Drop Frame
         self.drop_frame = QFrame(self)
         self.drop_frame.setStyleSheet("background-color: #323232;")
-        self.drop_frame.setFixedSize(600, 450)
+        self.drop_frame.setFixedSize(800, 550)
 
         # "Drop Image Here" Label
-        self.drop_label = QLabel("Drop Image Here", self.drop_frame)
-        self.drop_label.setStyleSheet("color: black; font: 16pt 'Helvetica';")
+        self.drop_label = QLabel("Please select an Image", self.drop_frame)
+        self.drop_label.setStyleSheet("color: black; font: 18pt 'Helvetica';")
         self.drop_label.setAlignment(Qt.AlignCenter)
 
         # "Add" Button
@@ -96,8 +96,17 @@ class ImageLoaderApp(QDialog):
     def open_file_dialog(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Select Image", "", "Image files (*.jpg *.jpeg *.png)")
         if file_path and is_image_file(file_path):
+            # Önceki resmi kaldır
+            self.remove_image()
+
+            # Yeni dosyayı ekle
             self.file_path = file_path
             self.display_image(file_path)
+
+    def remove_image(self):
+        # Resmi kaldır ve dosya yolunu sıfırla
+        self.drop_label.clear()
+        self.file_path = None
 
     def display_image(self, file_path):
         img = Image.open(file_path)

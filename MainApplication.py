@@ -63,3 +63,4 @@ if __name__ == "__main__":
     config_loader = load_config("config.json")
     main_app = MainApplication(config_loader)
     sys.exit(app.exec_())
+
