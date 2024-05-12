@@ -1,65 +1,68 @@
 import numpy as np
 import cv2
+import os
 import json
+from skimage import feature
 from keras.models import load_model
 from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
 import joblib
-from skimage.feature import local_binary_pattern
 
 
-# Konfigürasyon dosyasını yükleme
 def load_config(config_file):
     with open(config_file, "r") as file:
         return json.load(file)
 
 
 config = load_config("config.json")
-
-# Deep Learning Modelleri
-unet_model = load_model(config["unet_model_path"])
 cnn_model = load_model(config["trained_model_path"])
-
-# Machine Learning Modeli
 ml_model = joblib.load(config["knn_model_path"])
 scaler = joblib.load(config["scaler_path"])
 
 
-# Test verilerini yükleme
-def load_test_data(image_paths):
+def load_masked_images(folder):
     images = []
-    for path in image_paths:
-        img = cv2.imread(path, cv2.IMREAD_COLOR)
-        img = cv2.resize(img, (256, 256))  # Eğer gerekirse boyutlandırma
-        images.append(img)
-    return np.array(images)
+    labels = []
+    label_mapping = {'benign': 0, 'malignant': 1, 'normal': 2}
+    for label in label_mapping:
+        dir_path = os.path.join(folder, label)
+        for file in os.listdir(dir_path):
+            if '_mask.png' in file:
+                img_path = os.path.join(dir_path, file)
+                img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+                if img is not None:
+                    img = cv2.resize(img, (256, 256))
+                    images.append(img)
+                    labels.append(label_mapping[label])
+
+    print(f"Loaded {len(images)} images with labels.")
+    return np.array(images), np.array(labels)
 
 
-test_image_paths = ['test1.jpg', 'test2.jpg']  # Örnek yollar
-test_images = load_test_data(test_image_paths)
-true_labels = np.array([1, 0])  # Gerçek etiketler
+folder = r'C:\Users\AhmetSahinCAKIR\Desktop\Ahmet\Bitirme\Dataset_BUSI_with_GT'
+images, labels = load_masked_images(folder)
+test_size_ratio = 0.2  # 20% test
+train_images, test_images, train_labels, test_labels = train_test_split(images, labels, test_size=test_size_ratio,
+                                                                        random_state=42)
 
 
-# CNN tahmin fonksiyonu
 def predict_with_cnn(model, images):
-    # Boyut ekleme gerekiyorsa
-    images = images / 255.0  # Normalize etme (gerekiyorsa)
+    images = images.reshape(images.shape[0], 256, 256, 1)
+    images = images / 255.0
     return model.predict(images).argmax(axis=1)
 
 
-deep_predictions1 = predict_with_cnn(deep_model1, test_images)
-deep_predictions2 = predict_with_cnn(deep_model2, test_images)
+deep_predictions = predict_with_cnn(cnn_model, test_images)
 
 
-# LBP özellikleri çıkarma
-def extract_lbp_features(image, P=8, R=1):
-    lbp_image = local_binary_pattern(image, P, R, method='uniform')
-    n_bins = int(lbp_image.max() + 1)
-    hist, _ = np.histogram(lbp_image, bins=n_bins, range=(0, n_bins), density=True)
+def extract_lbp_features(image):
+    lbp = feature.local_binary_pattern(image, P=8, R=1, method='uniform')
+    hist, _ = np.histogram(lbp.ravel(), bins=np.arange(0, 10), range=(0, 9))
     return hist
 
 
 def extract_features_and_predict(images, model, scaler):
-    features = [extract_lbp_features(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)) for img in images]
+    features = np.array([extract_lbp_features(img) for img in images])
     scaled_features = scaler.transform(features)
     return model.predict(scaled_features)
 
@@ -67,18 +70,16 @@ def extract_features_and_predict(images, model, scaler):
 ml_predictions = extract_features_and_predict(test_images, ml_model, scaler)
 
 
-# Performans değerlendirme
 def calculate_performance(true_labels, predictions):
     accuracy = accuracy_score(true_labels, predictions)
     return accuracy
 
 
-accuracy1 = calculate_performance(true_labels, deep_predictions1)
-accuracy2 = calculate_performance(true_labels, deep_predictions2)
-ml_accuracy = calculate_performance(true_labels, ml_predictions)
+dl_accuracy = calculate_performance(test_labels, deep_predictions)
+ml_accuracy = calculate_performance(test_labels, ml_predictions)
 
-# Performansları kaydetme
-with open('model_performances.txt', 'w') as file:
-    file.write(f'Deep Learning Model 1 Accuracy: {accuracy1}\n')
-    file.write(f'Deep Learning Model 2 Accuracy: {accuracy2}\n')
-    file.write(f'Machine Learning Model Accuracy: {ml_accuracy}\n')
+dl_accuracy_percent = dl_accuracy * 100
+ml_accuracy_percent = ml_accuracy * 100
+
+print(f'Deep Learning Model (CNN) Accuracy: {dl_accuracy_percent:.2f}%')
+print(f'Machine Learning Model (KNN) Accuracy: {ml_accuracy_percent:.2f}%')
