@@ -63,4 +63,3 @@ y_pred = knn_model.predict(X_test_scaled)
 
 accuracy = accuracy_score(y_test, y_pred)
 print(f'Accuracy: {accuracy * 100:.2f}%')
-print(classification_report(y_test, y_pred, target_names=["Malignant", "Benign", "Normal"], digits=4))
