@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1200</width>
+    <height>800</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QWidget" name="widget" native="true">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1200</width>
+     <height>800</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QWidget#widget{
+
+border-image: url(:/clippart/78505c683664dc60f3b10524f15de2eb.jpg);
+}
+</string>
+   </property>
+   <widget class="QFrame" name="frame_results">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>110</y>
+      <width>1011</width>
+      <height>461</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 75 14pt &quot;Goudy Old Style&quot;;
+color: rgb(255, 255, 255);
+/*background-color:pink;
+color: white;
+text-align: center;
+border-radius: 19px;  /* Butonu daire şeklinde yapmak için */
+width: 200px;  /* Butonun genişliği */
+height: 100px;  /* Butonun yüksekliği */
+border: 5px solid white; /* 5px kalınlığında mavi kenarlık */
+border-radius: 10px;      /* Kenarlıkları yuvarlatır (isteğe bağlı) */
+
+
+
+</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>500</x>
+      <y>30</y>
+      <width>181</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 42pt &quot;Goudy Old Style&quot;;
+color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="text">
+     <string>Result</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="button_upload_page">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>680</y>
+      <width>271</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 75 14pt &quot;Goudy Old Style&quot;;
+color: rgb(255, 255, 255);
+/*background-color:pink;
+color: white;
+text-align: center;
+border-radius: 19px;  /* Butonu daire şeklinde yapmak için */
+width: 200px;  /* Butonun genişliği */
+height: 100px;  /* Butonun yüksekliği */
+border: 5px solid white; /* 5px kalınlığında mavi kenarlık */
+border-radius: 10px;      /* Kenarlıkları yuvarlatır (isteğe bağlı) */
+
+
+
+</string>
+    </property>
+    <property name="text">
+     <string>Upload Page</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="button_exit">
+    <property name="geometry">
+     <rect>
+      <x>830</x>
+      <y>680</y>
+      <width>271</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 75 14pt &quot;Goudy Old Style&quot;;
+color: rgb(255, 255, 255);
+/*background-color:pink;
+color: white;
+text-align: center;
+border-radius: 19px;  /* Butonu daire şeklinde yapmak için */
+width: 200px;  /* Butonun genişliği */
+height: 100px;  /* Butonun yüksekliği */
+border: 5px solid white; /* 5px kalınlığında mavi kenarlık */
+border-radius: 10px;      /* Kenarlıkları yuvarlatır (isteğe bağlı) */
+
+
+
+</string>
+    </property>
+    <property name="text">
+     <string>Exit</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_diagnosis">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>590</y>
+      <width>1011</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 75 14pt &quot;Goudy Old Style&quot;;
+color: rgb(255, 255, 255);
+/*background-color:pink;
+color: white;
+text-align: center;
+border-radius: 19px;  /* Butonu daire şeklinde yapmak için */
+width: 200px;  /* Butonun genişliği */
+height: 100px;  /* Butonun yüksekliği */
+border: 5px solid white; /* 5px kalınlığında mavi kenarlık */
+border-radius: 10px;      /* Kenarlıkları yuvarlatır (isteğe bağlı) */
+
+
+
+</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <resources>
+  <include location="test.qrc"/>
+ </resources>
+ <connections/>
+</ui>
