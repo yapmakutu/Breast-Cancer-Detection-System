@@ -46,6 +46,7 @@ class MainApplication(QMainWindow):
             self.image_loader_app.close()
 
     def show_result_window(self, original_image_path, result_image, prediction):
+
         if isinstance(result_image, np.ndarray):
             result_image = (result_image * 255).astype(np.uint8)
             result_image_path = os.path.join(tempfile.gettempdir(), "predicted_mask.png")

@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1200</width>
+    <height>800</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QWidget" name="widget" native="true">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1200</width>
+     <height>800</height>
+    </rect>
+   </property>
+   <property name="acceptDrops">
+    <bool>true</bool>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QWidget#widget{
+
+border-image: url(:/clippart/78505c683664dc60f3b10524f15de2eb.jpg);
+}
+</string>
+   </property>
+   <widget class="QPushButton" name="button_option_2">
+    <property name="geometry">
+     <rect>
+      <x>510</x>
+      <y>570</y>
+      <width>271</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="acceptDrops">
+     <bool>false</bool>
+    </property>
+    <property name="statusTip">
+     <string/>
+    </property>
+    <property name="autoFillBackground">
+     <bool>false</bool>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 75 14pt &quot;Goudy Old Style&quot;;
+color: rgb(255, 255, 255);
+/*background-color:pink;
+color: white;
+text-align: center;
+border-radius: 19px;  /* Butonu daire şeklinde yapmak için */
+width: 200px;  /* Butonun genişliği */
+height: 100px;  /* Butonun yüksekliği */
+border: 5px solid white; /* 5px kalınlığında mavi kenarlık */
+border-radius: 10px;      /* Kenarlıkları yuvarlatır (isteğe bağlı) */
+
+
+
+</string>
+    </property>
+    <property name="text">
+     <string>Machine Learning</string>
+    </property>
+    <property name="checkable">
+     <bool>false</bool>
+    </property>
+    <property name="autoExclusive">
+     <bool>false</bool>
+    </property>
+    <property name="default">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="button_option_1">
+    <property name="geometry">
+     <rect>
+      <x>800</x>
+      <y>570</y>
+      <width>271</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 75 14pt &quot;Goudy Old Style&quot;;
+color: rgb(255, 255, 255);
+/*background-color:pink;
+color: white;
+text-align: center;
+border-radius: 19px;  /* Butonu daire şeklinde yapmak için */
+width: 200px;  /* Butonun genişliği */
+height: 100px;  /* Butonun yüksekliği */
+border: 5px solid white; /* 5px kalınlığında mavi kenarlık */
+border-radius: 10px;      /* Kenarlıkları yuvarlatır (isteğe bağlı) */
+
+
+
+</string>
+    </property>
+    <property name="text">
+     <string>Deep Learning</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>60</y>
+      <width>1111</width>
+      <height>171</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 42pt &quot;Goudy Old Style&quot;;
+color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="text">
+     <string>Breast Cancer </string>
+    </property>
+   </widget>
+   <widget class="QFrame" name="frame">
+    <property name="geometry">
+     <rect>
+      <x>510</x>
+      <y>20</y>
+      <width>581</width>
+      <height>541</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 75 14pt &quot;Goudy Old Style&quot;;
+
+border-color: rgb(255, 255, 255);
+color: white;
+text-align: center;
+/*border-radius: 80px;  /* Butonu daire şeklinde yapmak için */
+width: 200px;  /* Butonun genişliği */
+height: 100px;  /* Butonun yüksekliği */
+border: 5px solid white; /* 5px kalınlığında mavi kenarlık */
+border-radius: 10px;      /* Kenarlıkları yuvarlatır (isteğe bağlı) */
+
+
+
+
+
+</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QPushButton" name="button_add">
+     <property name="geometry">
+      <rect>
+       <x>410</x>
+       <y>490</y>
+       <width>141</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">font: 75 14pt &quot;Goudy Old Style&quot;;
+/*background-color:pink;
+color: white;
+text-align: center;
+/*border-radius: 19px;  /* Butonu daire şeklinde yapmak için */
+width: 200px;  /* Butonun genişliği */
+height: 100px;  /* Butonun yüksekliği */
+
+
+
+</string>
+     </property>
+     <property name="text">
+      <string>Add</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="drop_label">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>10</y>
+       <width>512</width>
+       <height>472</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border:none;
+</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>180</y>
+      <width>491</width>
+      <height>101</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 42pt &quot;Goudy Old Style&quot;;
+color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="text">
+     <string>Detection System</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="ok_button">
+    <property name="geometry">
+     <rect>
+      <x>740</x>
+      <y>670</y>
+      <width>141</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 75 14pt &quot;Goudy Old Style&quot;;
+color: rgb(255, 255, 255);
+/*background-color:pink;
+color: white;
+text-align: center;
+border-radius: 19px;  /* Butonu daire şeklinde yapmak için */
+width: 200px;  /* Butonun genişliği */
+height: 100px;  /* Butonun yüksekliği */
+border: 5px solid white; /* 5px kalınlığında mavi kenarlık */
+border-radius: 10px;      /* Kenarlıkları yuvarlatır (isteğe bağlı) */
+
+
+
+</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>770</x>
+      <y>680</y>
+      <width>91</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">
+image: url(:/clippart/8T6oB9Rjc.png);</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>-100</x>
+      <y>100</y>
+      <width>581</width>
+      <height>971</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border-color: qlineargradient(spread:pad, x1:0.184, y1:0.869, x2:1, y2:0, stop:0 rgba(255, 170, 255, 255), stop:1 rgba(255, 255, 255, 255));
+
+image: url(:/clippart/breast-5472788_1280.png);</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <zorder>label_2</zorder>
+   <zorder>frame</zorder>
+   <zorder>label</zorder>
+   <zorder>button_option_1</zorder>
+   <zorder>ok_button</zorder>
+   <zorder>label_3</zorder>
+   <zorder>button_option_2</zorder>
+   <zorder>label_4</zorder>
+  </widget>
+ </widget>
+ <resources>
+  <include location="test.qrc"/>
+ </resources>
+ <connections/>
+</ui>
