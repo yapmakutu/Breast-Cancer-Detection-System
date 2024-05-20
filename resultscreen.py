@@ -23,7 +23,7 @@ class Ui_Dialog(object):
                                   "")
         self.widget.setObjectName("widget")
         self.frame_results = QtWidgets.QFrame(self.widget)
-        self.frame_results.setGeometry(QtCore.QRect(90, 110, 1012, 461))
+        self.frame_results.setGeometry(QtCore.QRect(90, 110, 1051, 500))
         self.frame_results.setStyleSheet("font: 75 14pt \"Goudy Old Style\";\n"
                                          "color: rgb(255, 255, 255);\n"
                                          "/*background-color:pink;\n"
@@ -81,7 +81,7 @@ class Ui_Dialog(object):
                                        "")
         self.button_exit.setObjectName("button_exit")
         self.label_diagnosis = QtWidgets.QLabel(self.widget)
-        self.label_diagnosis.setGeometry(QtCore.QRect(90, 590, 1011, 51))
+        self.label_diagnosis.setGeometry(QtCore.QRect(90, 620, 1031, 51))
         self.label_diagnosis.setStyleSheet("font: 75 14pt \"Goudy Old Style\";\n"
                                            "color: rgb(255, 255, 255);\n"
                                            "/*background-color:pink;\n"

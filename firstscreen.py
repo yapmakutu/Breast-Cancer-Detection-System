@@ -84,6 +84,8 @@ class Ui_Dialog(object):
         self.button_add = QtWidgets.QPushButton(self.frame)
         self.button_add.setGeometry(QtCore.QRect(410, 490, 141, 41))
         self.button_add.setStyleSheet("font: 75 14pt \"Goudy Old Style\";\n"
+                                      
+                        
                                       "/*background-color:pink;\n"
                                       "color: white;\n"
                                       "text-align: center;\n"
@@ -95,10 +97,12 @@ class Ui_Dialog(object):
                                       "\n"
                                       "")
         self.button_add.setObjectName("button_add")
+
         self.drop_label = QtWidgets.QLabel(self.frame)
-        self.drop_label.setGeometry(QtCore.QRect(40, 10, 512, 472))
+        self.drop_label.setGeometry(QtCore.QRect(0, 0, 581, 541))#burda değişiklik yaptın
         self.drop_label.setStyleSheet("border:none;\n"
                                       "")
+        self.button_add.raise_()
         self.drop_label.setText("")
         self.drop_label.setObjectName("drop_label")
         self.label_4 = QtWidgets.QLabel(self.widget)
@@ -109,6 +113,7 @@ class Ui_Dialog(object):
         self.ok_button = QtWidgets.QPushButton(self.widget)
         self.ok_button.setGeometry(QtCore.QRect(740, 670, 141, 61))
         self.ok_button.setStyleSheet("font: 75 14pt \"Goudy Old Style\";\n"
+                                     "image: url(:/clippart/8T6oB9Rjc.png);\n"
                                      "color: rgb(255, 255, 255);\n"
                                      "/*background-color:pink;\n"
                                      "color: white;\n"
@@ -122,13 +127,8 @@ class Ui_Dialog(object):
                                      "\n"
                                      "\n"
                                      "")
-        self.ok_button.setText("Analyze")
+        #self.ok_button.setText("Analyze")
         self.ok_button.setObjectName("ok_button")
-        self.label_3 = QtWidgets.QLabel(self.widget)
-        self.label_3.setGeometry(QtCore.QRect(770, 680, 91, 41))
-        self.label_3.setStyleSheet("")
-        self.label_3.setText("")
-        self.label_3.setObjectName("label_3")
         self.label_2 = QtWidgets.QLabel(self.widget)
         self.label_2.setGeometry(QtCore.QRect(-100, 100, 581, 971))
         self.label_2.setStyleSheet(
@@ -142,7 +142,6 @@ class Ui_Dialog(object):
         self.label.raise_()
         self.button_option_1.raise_()
         self.ok_button.raise_()
-        self.label_3.raise_()
         self.button_option_2.raise_()
         self.label_4.raise_()
 

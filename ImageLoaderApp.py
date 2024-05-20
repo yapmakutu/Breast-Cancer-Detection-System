@@ -21,7 +21,7 @@ class ImageLoaderApp(QDialog, Ui_Dialog):
         # Setup the UI
         self.setupUi(self)
 
-        self.setFixedSize(1200, 800)
+        #self.setFixedSize(1200, 800)
 
         self.initUI()
 
