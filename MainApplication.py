@@ -3,7 +3,6 @@ import os
 import tempfile
 import tkinter as tk
 import cv2
-from tkinter import messagebox
 import numpy as np
 from ImageLoaderApp import ImageLoaderApp
 from DeepLearning import DeepLearning
@@ -16,13 +15,13 @@ def load_config(config_file):
         return json.load(file)
 
 
-class MainApplication(tk.Toplevel):  # tk.Tk yerine tk.Toplevel kullanıldı
-    def __init__(self, root, config,*args, **kwargs):
-        super().__init__(root)  # Toplevel sınıfının __init__ metodunu çağırmak için super kullanıldı
+class MainApplication(tk.Tk):  # tk.Tk yerine tk.Toplevel kullanıldı
+    def __init__(self, config, *args, **kwargs):
+        super().__init__(*args, **kwargs)  # Toplevel sınıfının __init__ metodunu çağırmak için super kullanıldı
         self.image_loader_app = None
         self.result_window = None
-        self.root = root
-        self.root.withdraw()
+        # self.root = root
+        # self.root.withdraw()
         unet_model_path = config["unet_model_path"]
         trained_model_path = config["trained_model_path"]
         scaler_path = config["scaler_path"]
@@ -35,7 +34,8 @@ class MainApplication(tk.Toplevel):  # tk.Tk yerine tk.Toplevel kullanıldı
         if self.result_window is not None:
             self.result_window.destroy()
             self.result_window = None
-        self.image_loader_app = ImageLoaderApp(master=self, callback=self.on_image_loaded)  # root yerine self kullanıldı
+        self.image_loader_app = ImageLoaderApp(master=self,
+                                               callback=self.on_image_loaded)  # root yerine self kullanıldı
         self.image_loader_app.grab_set()
 
     def on_image_loaded(self, image_path, option):
@@ -44,7 +44,17 @@ class MainApplication(tk.Toplevel):  # tk.Tk yerine tk.Toplevel kullanıldı
             self.image_loader_app.destroy()
             self.show_result_window(image_path, predicted_mask, prediction)
         elif option == 2:
-            segmented_image, prediction = self.machine_learning.segment_and_classify(image_path)
+            predicted_mask, _ = self.deep_learning.segment_and_classify(image_path)
+            # Orijinal görüntüyü yükleyin
+            original_image = cv2.imread(image_path)
+            # Orijinal görüntü boyutlarını alın
+            original_height, original_width = original_image.shape[:2]
+            # Görüntüyü 256x256 piksel boyutlarına yeniden boyutlandırın
+            resized_image = cv2.resize(original_image, (256, 256))
+            # Yeniden boyutlandırılmış görüntüyü tekrar orijinal boyutlarına döndürün
+            restored_image = cv2.resize(resized_image, (original_width, original_height))
+
+            segmented_image, prediction = self.machine_learning.segment_and_classify(predicted_mask)
             self.image_loader_app.destroy()
             self.show_result_window(image_path, segmented_image, prediction)
 
@@ -58,7 +68,8 @@ class MainApplication(tk.Toplevel):  # tk.Tk yerine tk.Toplevel kullanıldı
         else:
             result_image_path = result_image
         self.result_window = ResultWindow(self, self, original_image_path=original_image_path,
-                                          result_image_path=result_image_path, prediction=prediction)  # root yerine self kullanıldı
+                                          result_image_path=result_image_path,
+                                          prediction=prediction)  # root yerine self kullanıldı
         self.result_window.grab_set()
 
     def run(self):
@@ -68,7 +79,6 @@ class MainApplication(tk.Toplevel):  # tk.Tk yerine tk.Toplevel kullanıldı
 config_loader = load_config("config.json")
 
 if __name__ == "__main__":
-    main_root = tk.Tk()
-    main_root.title("Breast Cancer Detection System")
-    app = MainApplication(main_root, config_loader)
+    config_loader = load_config("config.json")
+    app = MainApplication(config_loader)
     app.run()
