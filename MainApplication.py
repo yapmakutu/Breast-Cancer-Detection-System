@@ -35,6 +35,7 @@ class MainApplication(QMainWindow):
         self.image_loader_app.show()
 
     def on_image_loaded(self, image_path, option):
+        print("Step 10")
         if option == 1:
             predicted_mask, prediction = self.deep_learning.segment_and_classify(image_path)
             self.show_result_window(image_path, predicted_mask, prediction)
@@ -46,7 +47,7 @@ class MainApplication(QMainWindow):
             self.image_loader_app.close()
 
     def show_result_window(self, original_image_path, result_image, prediction):
-
+        print("Step 11")
         if isinstance(result_image, np.ndarray):
             result_image = (result_image * 255).astype(np.uint8)
             result_image_path = os.path.join(tempfile.gettempdir(), "predicted_mask.png")
