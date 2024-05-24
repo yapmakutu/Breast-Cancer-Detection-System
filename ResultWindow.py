@@ -25,7 +25,7 @@ class ResultWindow(QDialog, Ui_Dialog):
         self.update_diagnosis(prediction)
 
     def initUI(self):
-        print("Step 12")
+        #print("Step 12")
         self.layout_results = QHBoxLayout()  # Initialize the layout
 
         # Load and display images
@@ -56,12 +56,12 @@ class ResultWindow(QDialog, Ui_Dialog):
                 print(f"Error loading image: {e}")
 
     def back_to_upload(self):
-        print("Back to upload")
+        #print("Back to upload")
         self.close()
         self.main_app.open_image_loader()
 
     def exit_app(self):
-        print("Step 14")
+        #print("Step 14")
         self.close()
 
     def update_diagnosis(self, prediction):
@@ -71,7 +71,7 @@ class ResultWindow(QDialog, Ui_Dialog):
         elif isinstance(prediction, str):
             diagnosis_text = prediction
 
-        print("Step 13")
+        #print("Step 13")
         self.label_diagnosis.setText(diagnosis_text)
         # Update diagnosis label style
         self.label_diagnosis.setStyleSheet(

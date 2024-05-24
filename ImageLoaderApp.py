@@ -26,13 +26,13 @@ class ImageLoaderApp(QDialog, Ui_Dialog):
         self.initUI()
 
     def initUI(self):
-        print("Step 1")
+        #print("Step 1")
         # "Add" Button
         self.button_add.clicked.connect(self.handle_add_button_click)
         self.button_option_1.clicked.connect(lambda: self.set_option(1))
         self.button_option_2.clicked.connect(lambda: self.set_option(2))
         self.ok_button.clicked.connect(self.handle_ok_button_click)
-        print("Step 2")
+        #print("Step 2")
 
     def handle_add_button_click(self):
         self.button_add.setStyleSheet("background-color: #FFD700; color: black; font: 12pt 'Helvetica';")  # Change to a highlight color
@@ -58,7 +58,7 @@ class ImageLoaderApp(QDialog, Ui_Dialog):
     def open_file_dialog(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Select Image", "", "Image files (*.jpg *.jpeg *.png)")
         if file_path and is_image_file(file_path):
-            print("Step 3")
+            #print("Step 3")
             # Remove the previous image
             self.remove_image()
 
@@ -66,13 +66,13 @@ class ImageLoaderApp(QDialog, Ui_Dialog):
             self.display_image(file_path)
 
     def remove_image(self):
-        print("Step 4")
+        #print("Step 4")
         # Remove the image and reset the file path
         self.drop_label.clear()
         self.file_path = None
 
     def display_image(self, file_path):
-        print("Step 5")
+        #print("Step 5")
         img = Image.open(file_path)
         img = img.resize((581, 541), Image.LANCZOS)
         img.save(file_path)
@@ -82,16 +82,16 @@ class ImageLoaderApp(QDialog, Ui_Dialog):
         self.drop_label.setScaledContents(True)
 
     def on_ok_pressed(self):
-        print("Step 8")
+        #print("Step 8")
         if self.file_path and self.callback and self.option is not None:
-            print("Step 9")
+            #print("Step 9")
             self.callback(self.file_path, self.option)
         else:
             print("Missing file path or option")
         self.close()
 
     def set_option(self, option):
-        print("Step 6")
+        #print("Step 6")
         # Update the state of the selected button
         if option == 1:
             self.button_option_1.setStyleSheet("background-color: #4E342E; color: black; font: 12pt 'Helvetica';")
@@ -99,7 +99,7 @@ class ImageLoaderApp(QDialog, Ui_Dialog):
             self.button_option_2.setStyleSheet("background-color: #4E342E; color: black; font: 12pt 'Helvetica';")
 
         self.option = option
-        print("Step 7")
+        #print("Step 7")
 
 
 if __name__ == "__main__":
