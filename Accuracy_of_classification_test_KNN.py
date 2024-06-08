@@ -4,7 +4,7 @@ import os
 import json
 from joblib import load
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report, accuracy_score
+from sklearn.metrics import accuracy_score
 
 
 def load_config(config_file):
