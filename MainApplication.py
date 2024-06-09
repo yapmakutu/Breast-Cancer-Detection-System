@@ -10,12 +10,9 @@ from ResultWindow import ResultWindow
 from DeepLearning import DeepLearning
 from MachineLearning import MachineLearning
 
-#projeyi bozmayalım lütfennnn
-
 def load_config(config_file):
     with open(config_file, "r") as file:
         return json.load(file)
-
 
 class MainApplication(QMainWindow):
     def __init__(self, config):
@@ -58,10 +55,8 @@ class MainApplication(QMainWindow):
                                           result_image_path=result_image_path, prediction=prediction)
         self.result_window.show()
 
-
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     config_loader = load_config("config.json")
     main_app = MainApplication(config_loader)
     sys.exit(app.exec_())
-
