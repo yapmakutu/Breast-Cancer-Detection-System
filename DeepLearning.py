@@ -1,10 +1,13 @@
+import logging
+import sys
+import os
+import tempfile
 import cv2
 import numpy as np
-from keras.layers import Layer, Conv2D, Dropout, UpSampling2D, concatenate, Add, Multiply, MaxPool2D, BatchNormalization
 from keras.models import load_model
+from keras.layers import Layer, Conv2D, Dropout, UpSampling2D, concatenate, Add, Multiply, MaxPool2D, BatchNormalization
 
-
-# Özelleştirilmiş katmanlar
+# Custom Layers
 class EncoderBlock(Layer):
     def __init__(self, filters, rate, pooling=True, **kwargs):
         super(EncoderBlock, self).__init__(**kwargs)
@@ -71,37 +74,101 @@ class AttentionGate(Layer):
             return f
 
 
+def load_unet_model(path):
+    try:
+        base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+        model_path = os.path.join(base_path, path)
+        model = load_model(model_path, custom_objects={'EncoderBlock': EncoderBlock, 'DecoderBlock': DecoderBlock,
+                                                       'AttentionGate': AttentionGate})
+        logging.info("U-Net model loaded successfully.")
+        return model
+    except Exception as e:
+        logging.error(f"Error loading U-Net model: {e}")
+        raise
+
+
+def load_cnn_model(path):
+    try:
+        base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+        model_path = os.path.join(base_path, path)
+        model = load_model(model_path)
+        logging.info("CNN model loaded successfully.")
+        return model
+    except Exception as e:
+        logging.error(f"Error loading CNN model: {e}")
+        raise
+
+
 class DeepLearning:
     def __init__(self, unet_model_path, cnn_model_path):
-        self.segmentation_model = load_model(unet_model_path,
-                                             custom_objects={'EncoderBlock': EncoderBlock,
-                                                             'DecoderBlock': DecoderBlock,
-                                                             'AttentionGate': AttentionGate})
-        self.classification_model = load_model(cnn_model_path)
+        self.segmentation_model = load_unet_model(unet_model_path)
+        self.classification_model = load_cnn_model(cnn_model_path)
+
+    @staticmethod
+    def preprocess_image(image_path):
+        try:
+            image = cv2.imread(image_path)
+            if image is None:
+                raise ValueError("Image not loaded correctly")
+            resized_image = cv2.resize(image, (256, 256))
+            resized_image = np.expand_dims(resized_image, axis=0)
+            return resized_image
+        except Exception as e:
+            logging.error(f"Error preprocessing image: {e}")
+            raise
+
+    @staticmethod
+    def check_contiguity(mask):
+        num_labels, labels_im = cv2.connectedComponents(mask)
+        return num_labels
 
     def segment_and_classify(self, image_path):
-        test_image = cv2.imread(image_path)
-        resized_image = cv2.resize(test_image, (256, 256))
-        resized_image = np.expand_dims(resized_image, axis=0)
+        try:
+            resized_image = self.preprocess_image(image_path)
+            logging.debug("Image preprocessed successfully.")
 
-        predicted_mask = self.segmentation_model.predict(resized_image)
-        predicted_mask = cv2.resize(predicted_mask[0], (test_image.shape[1], test_image.shape[0]))
+            # Predict the segmentation mask
+            predicted_mask = self.segmentation_model.predict(resized_image)
+            predicted_mask_resized = cv2.resize(predicted_mask[0], (resized_image.shape[2], resized_image.shape[1]))
+            logging.debug("Segmentation mask predicted successfully.")
 
-        _, binary_mask = cv2.threshold(predicted_mask, 0.5, 1, cv2.THRESH_BINARY)
-        binary_mask = (binary_mask * 255).astype(np.uint8)
+            # Binary mask
+            _, binary_mask = cv2.threshold(predicted_mask_resized, 0.5, 1, cv2.THRESH_BINARY)
+            binary_mask = (binary_mask * 255).astype(np.uint8)
+            logging.debug("Binary mask created successfully.")
 
-        segmented_pixels = np.sum(binary_mask > 0)
-        total_pixels = binary_mask.size
-        segmented_ratio = (segmented_pixels / total_pixels) * 100
+            # Check contiguity
+            num_labels = self.check_contiguity(binary_mask)
+            logging.debug(f"Number of labels in mask: {num_labels}")
 
-        if segmented_ratio < 0.5:  # %2'den az ise
-            diagnosis = "No cancer"
-        else:
-            predicted_mask_resized = cv2.resize(binary_mask, (256, 256))
-            predicted_mask_final = np.expand_dims(predicted_mask_resized, axis=0)
+            if num_labels > 2:  # If more than one component exists, apply threshold
+                segmented_pixels = np.sum(binary_mask > 0)
+                total_pixels = binary_mask.size
+                segmented_ratio = (segmented_pixels / total_pixels) * 100
+
+                if segmented_ratio < 1.0:  # If segmented area is less than 1%
+                    binary_mask.fill(0)  # Set the mask to black
+                    segmented_image_path = os.path.join(tempfile.gettempdir(), "segmented_image.png")
+                    if not cv2.imwrite(segmented_image_path, binary_mask):
+                        raise ValueError(f"1 Could not write image to path: {segmented_image_path}")
+                    return segmented_image_path, "No cancer"
+
+            # Resize and prepare mask for classification
+            predicted_mask_final = cv2.resize(binary_mask, (256, 256))
+            predicted_mask_final = np.expand_dims(predicted_mask_final, axis=0)
             predicted_mask_final = np.expand_dims(predicted_mask_final, axis=-1)
+
+            # Classification
             prediction = self.classification_model.predict(predicted_mask_final)
             diagnosis = "Malignant" if prediction[0][0] > 0.6 else "Benign"
-        return predicted_mask, diagnosis
+            logging.debug(f"Prediction: {prediction}, Diagnosis: {diagnosis}")
 
+            # Save mask
+            segmented_image_path = os.path.join(tempfile.gettempdir(), "segmented_image.png")
+            if not cv2.imwrite(segmented_image_path, binary_mask):
+                raise ValueError(f"2 Could not write image to path: {segmented_image_path}")
 
+            return segmented_image_path, diagnosis
+        except Exception as e:
+            logging.error(f"Error in segment_and_classify: {e}")
+            raise

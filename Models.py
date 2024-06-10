@@ -6,8 +6,11 @@ import os
 models_info = {
     "unet_model": ("1ZekQ1o-WHF0pTeZOxZKOoEG8ULaFIbyh", "final_model.h5"),
     "trained_model": ("1JKGcZaMD8JUPlKmhtmA7mE-VeQMeirHg", "trained_model_size256.h5"),
-    "scaler": ("1R4o5yNKrs5jNwYUyTLzcZZhP03gXyUd4", "scaler.joblib"),
-    "knn_model": ("1_x9apV_p8Vl-8oVIFSh1KIUbVwfX_b_5", "knn_model.joblib")
+    "knn_model": ("1shRne9zszfVKLR0p7RYAMcyhv5psDtiP", "knn_model.pkl"),
+    "feature_len": ("1iOZINzghYES_-6QXm0Wl3hcoln9n0Gf-", "feature_len.pkl"),
+    "scaler": ("1BztRc6AKCsS0lXIxOyQCCufV11YaIIVc", "scaler.pkl"),
+    "pca": ("1_hPOKZdmWSAvvsfjpMmVyRZ9VBEibjIR", "pca.pkl")
+
 }
 
 # Directory to store downloaded models
@@ -35,6 +38,6 @@ else:
 config.update(local_paths)
 
 with open(config_file_path, 'w') as file:
-    json.dump(config, file, indent=4)
+    json.dump(config, file, indent=5)
 
 print("Models have been downloaded and config.json updated.")

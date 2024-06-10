@@ -1,9 +1,10 @@
-from PyQt5.QtWidgets import (QDialog, QLabel, QPushButton, QFrame,
-                             QVBoxLayout, QHBoxLayout, QFileDialog)
+import sys
+from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox, QApplication
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import QTimer
 import os
 from PIL import Image
+from firstscreen import Ui_Dialog  # Ensure this import matches the converted .py file
 
 
 def is_image_file(file_path):
@@ -11,124 +12,103 @@ def is_image_file(file_path):
     return os.path.splitext(file_path)[1].lower() in valid_extensions
 
 
-class ImageLoaderApp(QDialog):
+class ImageLoaderApp(QDialog, Ui_Dialog):
     def __init__(self, callback=None):
         super().__init__()
-        self.setWindowFlags(
-            self.windowFlags() | Qt.WindowMinimizeButtonHint | Qt.WindowMaximizeButtonHint | Qt.WindowCloseButtonHint)
-        self.ok_button = None
-        self.button_option_1 = None
-        self.button_option_2 = None
-        self.button_add = None
-        self.drop_label = None
-        self.drop_frame = None
-        self.label_title = None
-        self.setWindowTitle("Add Image")
-        self.setGeometry(100, 100, 1390, 768)  # Adjust to center on the screen as needed
         self.callback = callback
         self.file_path = None
         self.option = None
+
+        # Setup the UI
+        self.setupUi(self)
+
         self.initUI()
-        self.showMaximized()
 
     def initUI(self):
-        self.setStyleSheet("background-color: #ADD8E6;")
-
-        # Title Label
-        self.label_title = QLabel("Add Image", self)
-        self.label_title.setStyleSheet("color: black; font: 24pt 'Helvetica';")
-
-        # Drop Frame
-        self.drop_frame = QFrame(self)
-        self.drop_frame.setStyleSheet("background-color: #323232;")
-        self.drop_frame.setFixedSize(800, 550)
-
-        # "Drop Image Here" Label
-        self.drop_label = QLabel("Please select an Image", self.drop_frame)
-        self.drop_label.setStyleSheet("color: black; font: 18pt 'Helvetica';")
-        self.drop_label.setAlignment(Qt.AlignCenter)
-
-        # "Add" Button
-        self.button_add = QPushButton("Add", self.drop_frame)
-        self.button_add.setStyleSheet("background-color: #FF69B4; color: black; font: 12pt 'Helvetica';")
-        self.button_add.clicked.connect(self.open_file_dialog)
-
-        # Option Buttons
-        self.button_option_1 = QPushButton("Deep Learning", self)
-        self.button_option_1.setStyleSheet("background-color: #FF69B4; color: black; font: 12pt 'Helvetica';")
-        self.button_option_1.setFixedSize(200, 40)
+        self.button_add.clicked.connect(self.handle_add_button_click)
         self.button_option_1.clicked.connect(lambda: self.set_option(1))
-
-        self.button_option_2 = QPushButton("Machine Learning", self)
-        self.button_option_2.setStyleSheet("background-color: #FF69B4; color: black; font: 12pt 'Helvetica';")
-        self.button_option_2.setFixedSize(200, 40)
         self.button_option_2.clicked.connect(lambda: self.set_option(2))
+        self.ok_button.clicked.connect(self.handle_ok_button_click)
 
-        # "OK" Button
-        self.ok_button = QPushButton("→", self)
-        self.ok_button.setStyleSheet("background-color: #FF69B4; color: black; font: 12pt 'Helvetica';")
-        self.ok_button.setFixedSize(50, 40)
-        self.ok_button.clicked.connect(self.on_ok_pressed)
+    def handle_add_button_click(self):
+        self.button_add.setStyleSheet(
+            "background-color: #FFD700; color: black; font: 12pt 'Helvetica';")  # Change to a highlight color
+        QTimer.singleShot(200, self.reset_add_button_color)  # Change color back after 200 milliseconds
+        self.open_file_dialog()
 
-        self.layoutWidgets()
+    def reset_add_button_color(self):
+        self.button_add.setStyleSheet("font: 75 14pt \"Goudy Old Style\";\n"
+                                      "color: white;\n"
+                                      "text-align: center;\n"
+                                      "border-radius: 19px;\n"
+                                      "width: 200px;\n"
+                                      "height: 100px;\n")
 
-    def layoutWidgets(self):
-        # Main layout
-        main_layout = QVBoxLayout()
-        main_layout.addWidget(self.label_title, alignment=Qt.AlignCenter)
-        main_layout.addWidget(self.drop_frame, alignment=Qt.AlignCenter)
+    def handle_ok_button_click(self):
+        self.ok_button.setStyleSheet(
+            "background-color: #FFD700; color: black; font: 12pt 'Helvetica';")  # Change to a highlight color
+        QTimer.singleShot(200, self.reset_ok_button_color)  # Change color back after 200 milliseconds
+        self.on_ok_pressed()
 
-        # Drop frame layout
-        drop_frame_layout = QVBoxLayout(self.drop_frame)
-        drop_frame_layout.addWidget(self.drop_label, alignment=Qt.AlignCenter)
-        drop_frame_layout.addWidget(self.button_add, alignment=Qt.AlignBottom | Qt.AlignLeft)
-
-        # Option buttons layout
-        options_layout = QHBoxLayout()
-        options_layout.addWidget(self.button_option_1)
-        options_layout.addWidget(self.button_option_2)
-
-        main_layout.addLayout(options_layout)
-        main_layout.addWidget(self.ok_button, alignment=Qt.AlignRight)
-
-        self.setLayout(main_layout)
+    def reset_ok_button_color(self):
+        self.ok_button.setStyleSheet("font: 75 14pt 'Goudy Old Style'; color: white;")
 
     def open_file_dialog(self):
-        file_path, _ = QFileDialog.getOpenFileName(self, "Select Image", "", "Image files (*.jpg *.jpeg *.png)")
-        if file_path and is_image_file(file_path):
-            # Önceki resmi kaldır
-            self.remove_image()
-
-            # Yeni dosyayı ekle
-            self.file_path = file_path
-            self.display_image(file_path)
+        try:
+            file_path, _ = QFileDialog.getOpenFileName(self, "Select Image", "", "Image files (*.jpg *.jpeg *.png)")
+            if file_path and is_image_file(file_path):
+                self.remove_image()
+                self.file_path = file_path
+                self.display_image(file_path)
+        except Exception as e:
+            QMessageBox.critical(self, "Error5", str(e))
 
     def remove_image(self):
-        # Resmi kaldır ve dosya yolunu sıfırla
         self.drop_label.clear()
         self.file_path = None
 
     def display_image(self, file_path):
-        img = Image.open(file_path)
-        img = img.resize((512, 472), Image.LANCZOS)
-        img.save(file_path)
-
-        pixmap = QPixmap(file_path)
-        self.drop_label.setPixmap(pixmap)
-        self.drop_label.setScaledContents(True)
+        try:
+            img = Image.open(file_path)
+            img = img.resize((581, 541), Image.LANCZOS)
+            img.save(file_path)
+            pixmap = QPixmap(file_path)
+            self.drop_label.setPixmap(pixmap)
+            self.drop_label.setScaledContents(True)
+        except Exception as e:
+            QMessageBox.critical(self, "Error6", str(e))
 
     def on_ok_pressed(self):
-        if self.file_path and self.callback and self.option is not None:
-            self.callback(self.file_path, self.option)
-        self.close()
+        try:
+            if self.file_path and self.callback and self.option is not None:
+                self.callback(self.file_path, self.option)
+            else:
+                QMessageBox.warning(self, "Warning", "Missing file path or option")
+            self.close()
+        except Exception as e:
+            QMessageBox.critical(self, "Error7", str(e))
 
     def set_option(self, option):
-        # Update the state of the selected button
         if option == 1:
-            self.button_option_1.setStyleSheet("background-color: #4E342E; color: black; font: 12pt 'Helvetica';")
-            self.button_option_2.setStyleSheet("background-color: #FF69B4; color: black; font: 12pt 'Helvetica';")
+            self.button_option_1.setStyleSheet("background-color: #333333; color: white; font: 14pt 'Goudy Old Style';")
+            self.button_option_2.setStyleSheet("font: 75 14pt \"Goudy Old Style\";\n"
+                                               "color: rgb(255, 255, 255);\n"
+                                               "border: 5px solid white; border-radius: 10px;")
         elif option == 2:
-            self.button_option_2.setStyleSheet("background-color: #4E342E; color: black; font: 12pt 'Helvetica';")
-            self.button_option_1.setStyleSheet("background-color: #FF69B4; color: black; font: 12pt 'Helvetica';")
+            self.button_option_2.setStyleSheet("background-color: #333333; color: white; font: 14pt 'Goudy Old Style';")
+            self.button_option_1.setStyleSheet("font: 75 14pt \"Goudy Old Style\";\n"
+                                               "color: rgb(255, 255, 255);\n"
+                                               "border: 5px solid white; border-radius: 10px;")
 
         self.option = option
+
+
+if __name__ == "__main__":
+    def test_callback(file_path, option):
+        print(f"Callback invoked with file_path: {file_path} and option: {option}")
+
+
+    app = QApplication(sys.argv)
+    mainWindow = ImageLoaderApp(callback=test_callback)
+    mainWindow.show()
+    sys.exit(app.exec_())

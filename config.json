@@ -1,6 +1,8 @@
 {
-    "unet_model_path": "models\\final_model.h5",
-    "trained_model_path": "models\\trained_model_size256.h5",
-    "scaler_path": "models\\scaler.joblib",
-    "knn_model_path": "models\\knn_model.joblib"
+     "unet_model_path": "models\\final_model.h5",
+     "trained_model_path": "models\\trained_model_size256.h5",
+     "scaler_path": "models\\scaler.pkl",
+     "knn_model_path": "models\\knn_model.pkl",
+     "feature_len": "models\\feature_len.pkl",
+     "pca_path": "models\\pca.pkl"
 }
